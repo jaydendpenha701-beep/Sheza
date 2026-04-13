@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadows of the Abandoned</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Three.js from CDN -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Canvas will be injected here -->
+    </div>
+
+    <!-- UI Overlays -->
+    <div id="ui-layer">
+        <!-- Mobile Controls -->
+        <div id="mobile-controls" class="hidden">
+            <div id="joystick-container">
+                <div id="joystick-base">
+                    <div id="joystick-knob"></div>
+                </div>
+            </div>
+            <button id="mobile-interact">E</button>
+        </div>
+
+        <!-- Main Menu -->
+        <div id="main-menu" class="overlay">
+            <div class="content">
+                <h1>SHADOWS OF THE ABANDONED</h1>
+                <button id="start-btn" class="menu-btn">START GAME</button>
+                <button id="settings-btn" class="menu-btn">SETTINGS</button>
+                <div class="instructions">
+                    <p>WASD to Move | SHIFT to Run | CTRL to Crouch</p>
+                    <p>MOUSE to Look | CLICK to Interact</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+            <div id="crosshair"></div>
+            <div id="objective-display">
+                <span id="objective-text">Find the exit key</span>
+                <div id="item-count">0 / 5 Items Collected</div>
+            </div>
+            <div id="stamina-bar-container">
+                <div id="stamina-bar"></div>
+            </div>
+            <div id="sanity-bar-container">
+                <div id="sanity-bar"></div>
+            </div>
+            <div id="inventory-display">
+                <ul id="inventory-list"></ul>
+            </div>
+            <div id="interaction-prompt" class="hidden">Press [E] to interact</div>
+        </div>
+
+        <!-- Pause Menu -->
+        <div id="pause-menu" class="overlay hidden">
+            <div class="content">
+                <h2>PAUSED</h2>
+                <button id="resume-btn" class="menu-btn">RESUME</button>
+                <button id="exit-btn" class="menu-btn">EXIT TO MENU</button>
+            </div>
+        </div>
+
+        <!-- Game Over / Jumpscare -->
+        <div id="game-over" class="overlay hidden">
+            <div id="jumpscare-image" class="hidden"></div>
+            <div class="content">
+                <h2 id="game-over-title">YOU DIED</h2>
+                <button id="retry-btn" class="menu-btn">TRY AGAIN</button>
+            </div>
+        </div>
+
+        <!-- Win Screen -->
+        <div id="win-screen" class="overlay hidden">
+            <div class="content">
+                <h2>YOU ESCAPED</h2>
+                <p>You made it out alive...</p>
+                <button id="win-menu-btn" class="menu-btn">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
