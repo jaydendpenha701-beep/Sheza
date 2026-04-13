@@ -30,12 +30,14 @@ export class PlayerController {
         this.maxSanity = 100;
 
         this.touchLook = {
+            id: -1,
             active: false,
             lastX: 0,
             lastY: 0
         };
 
         this.joystick = {
+            id: -1,
             active: false,
             startX: 0,
             startY: 0,
@@ -114,58 +116,80 @@ export class PlayerController {
         const mobileInteract = document.getElementById('mobile-interact');
 
         joystickContainer.addEventListener('touchstart', (e) => {
+            const touch = e.changedTouches[0];
             this.joystick.active = true;
-            this.joystick.startX = e.touches[0].clientX;
-            this.joystick.startY = e.touches[0].clientY;
+            this.joystick.id = touch.identifier;
+            this.joystick.startX = touch.clientX;
+            this.joystick.startY = touch.clientY;
+        }, { passive: false });
+
+        document.addEventListener('touchstart', (e) => {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                if (touch.clientX > window.innerWidth / 2 && !this.touchLook.active) {
+                    this.touchLook.active = true;
+                    this.touchLook.id = touch.identifier;
+                    this.touchLook.lastX = touch.clientX;
+                    this.touchLook.lastY = touch.clientY;
+                }
+            }
         });
 
         document.addEventListener('touchmove', (e) => {
-            if (this.joystick.active) {
-                const dx = e.touches[0].clientX - this.joystick.startX;
-                const dy = e.touches[0].clientY - this.joystick.startY;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                const maxDist = 50;
-                const ratio = Math.min(dist, maxDist) / dist;
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
 
-                this.joystick.moveX = (dx * ratio) / maxDist;
-                this.joystick.moveY = (dy * ratio) / maxDist;
+                if (this.joystick.active && touch.identifier === this.joystick.id) {
+                    const dx = touch.clientX - this.joystick.startX;
+                    const dy = touch.clientY - this.joystick.startY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const maxDist = 50;
+                    const ratio = dist > 0 ? Math.min(dist, maxDist) / dist : 0;
 
-                joystickKnob.style.transform = `translate(calc(-50% + ${dx * ratio}px), calc(-50% + ${dy * ratio}px))`;
+                    this.joystick.moveX = (dx * ratio) / maxDist;
+                    this.joystick.moveY = (dy * ratio) / maxDist;
 
-                this.moveForward = this.joystick.moveY < -0.2;
-                this.moveBackward = this.joystick.moveY > 0.2;
-                this.moveLeft = this.joystick.moveX < -0.2;
-                this.moveRight = this.joystick.moveX > 0.2;
-            } else if (e.touches[0].clientX > window.innerWidth / 2) {
-                // Touch look on right side of screen
-                if (!this.touchLook.active) {
-                    this.touchLook.active = true;
-                    this.touchLook.lastX = e.touches[0].clientX;
-                    this.touchLook.lastY = e.touches[0].clientY;
-                } else {
-                    const movementX = e.touches[0].clientX - this.touchLook.lastX;
-                    const movementY = e.touches[0].clientY - this.touchLook.lastY;
+                    joystickKnob.style.transform = `translate(calc(-50% + ${dx * ratio}px), calc(-50% + ${dy * ratio}px))`;
+
+                    this.moveForward = this.joystick.moveY < -0.2;
+                    this.moveBackward = this.joystick.moveY > 0.2;
+                    this.moveLeft = this.joystick.moveX < -0.2;
+                    this.moveRight = this.joystick.moveX > 0.2;
+                }
+
+                if (this.touchLook.active && touch.identifier === this.touchLook.id) {
+                    const movementX = touch.clientX - this.touchLook.lastX;
+                    const movementY = touch.clientY - this.touchLook.lastY;
 
                     this.camera.rotation.y -= movementX * 0.005;
                     this.camera.rotation.x -= movementY * 0.005;
                     this.camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.camera.rotation.x));
 
-                    this.touchLook.lastX = e.touches[0].clientX;
-                    this.touchLook.lastY = e.touches[0].clientY;
+                    this.touchLook.lastX = touch.clientX;
+                    this.touchLook.lastY = touch.clientY;
                 }
             }
-        });
+        }, { passive: false });
 
-        document.addEventListener('touchend', () => {
-            this.joystick.active = false;
-            this.joystick.moveX = 0;
-            this.joystick.moveY = 0;
-            joystickKnob.style.transform = `translate(-50%, -50%)`;
-            this.moveForward = false;
-            this.moveBackward = false;
-            this.moveLeft = false;
-            this.moveRight = false;
-            this.touchLook.active = false;
+        document.addEventListener('touchend', (e) => {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                if (touch.identifier === this.joystick.id) {
+                    this.joystick.active = false;
+                    this.joystick.id = -1;
+                    this.joystick.moveX = 0;
+                    this.joystick.moveY = 0;
+                    joystickKnob.style.transform = `translate(-50%, -50%)`;
+                    this.moveForward = false;
+                    this.moveBackward = false;
+                    this.moveLeft = false;
+                    this.moveRight = false;
+                }
+                if (touch.identifier === this.touchLook.id) {
+                    this.touchLook.active = false;
+                    this.touchLook.id = -1;
+                }
+            }
         });
 
         mobileInteract.addEventListener('touchstart', () => {
